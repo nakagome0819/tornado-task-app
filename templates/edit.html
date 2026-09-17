@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta = charset="UTF=8">
+    <title>タスク編集</title>
+</head>
+<body>
+    <h1>タスク編集</h1>
+
+    <form method="post" action="/edit">
+        <input type="hidden" name="id" value="{{ task[0] }}">
+
+        <input
+            type="text"
+            name="task"
+            value="{{ task[0] }}"
+        >
+
+        <button type="submit">更新</button>
+
+    </form>
+
+    <a href="/">戻る</a>
+</body>
+</html>

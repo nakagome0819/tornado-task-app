@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タスク管理アプリ</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"]{
+            padding: 10px;
+            width: 70%;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        li {
+            background: white;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .error {
+            color: red;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>タスク管理アプリ</h1>
+
+        {% if error == "empty" %}
+            <p class="error">タスクを入力してください</p>
+        {% end %}
+    
+    <form method="post">
+        <input type="text" name="task" placeholder="タスクを入力">
+        <button 
+            type="button" 
+            class="btn regiser-btn"
+            onclick="playThenSubmit(this, 'registerSound')"
+        >
+            登録
+        </button>
+    </form>
+
+    <h2>登録済みタスク</h2>
+
+    <ul>
+        {% for task in tasks %}
+            <li class="task-item">
+                <span class="task-text">
+                    {% if task[2] == 1 %}
+                        <s>{{ task[1] }}</s>
+                    {% else %}
+                        {{ task[1] }}
+                    {% end %}
+                </span>
+
+                <div class="task-action">
+                    <form method="post" action="/complete" style="display:inline;">
+                    <input type="hidden" name="id" value="{{ task[0] }}">
+                    <button 
+                        type="button"
+                        class="btn complete-btn"
+                        onclick="playThenSubmit(this, 'completeSound')"
+                    >
+                        完了切替
+                    </button>
+                    </form>
+
+                    <a class="btn edit-btn" href="/edit?id={{ task[0] }}">編集</a>
+
+                    <form method="post" action="/delete" style="display:inline;">
+                        <input type="hidden" name="id" value="{{ task[0] }}">
+                        <button 
+                            type="button"
+                            class="btn delete-btn"
+                            onclick="playThenSubmit(this, 'deleteSound')"
+                        >
+                            削除
+                        </button>
+                    </form>
+                </div>
+            </li>
+        {% end %}
+    </ul>
+
+
+<audio id="registerSound" src="/static/register.mp3"></audio>
+<audio id="completeSound" src="/static/complete.mp3"></audio>
+<audio id="deleteSound" src="/static/delete.mp3"></audio>
+
+<script>
+    function playThenSubmit(button, soundId) {
+        const form = button.closest("form");
+        const sound = document.getElementById(soundId);
+
+        sound.currentTime = 0;
+
+        sound.play()
+            .then(() => {
+                console.log("音声再生成功");
+            })
+            .catch(error => {
+                console.log("音声再生エラー:", error);
+            });
+
+        setTimeout(() => {
+            form.submit();
+        }, 500);
+    }
+</script>
+</body>
+</html>
