@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>タスク管理アプリ</title>
+    <link rel="stylesheet" href="/templates/style.css">
     <style>
         body {
             font-family: sans-serif;
@@ -57,16 +58,18 @@
             <p class="error">タスクを入力してください</p>
         {% end %}
     
-    <form method="post">
-        <input type="text" name="task" placeholder="タスクを入力">
-        <button 
-            type="button" 
-            class="btn regiser-btn"
-            onclick="playThenSubmit(this, 'registerSound')"
-        >
-            登録
-        </button>
-    </form>
+        <form method="post" action="/"
+            onsubmit="playThenSubmit(event, 'registerSound')">
+            <input
+                type="text"
+                name="task"
+                placeholder="タスクを入力"
+                required
+            >
+            <button type="submit" class="btn register-btn">
+                登録
+            </button>
+        </form>
 
     <h2>登録済みタスク</h2>
 
@@ -81,29 +84,32 @@
                     {% end %}
                 </span>
 
-                <div class="task-action">
-                    <form method="post" action="/complete" style="display:inline;">
-                    <input type="hidden" name="id" value="{{ task[0] }}">
-                    <button 
-                        type="button"
-                        class="btn complete-btn"
-                        onclick="playThenSubmit(this, 'completeSound')"
-                    >
-                        完了切替
-                    </button>
+                <div class="task-actions">
+                    <form method="post" action="/complete"
+                        onsubmit="playThenSubmit(event, 'completeSound')">
+                        <input type="hidden" name="id" value="{{ task[0] }}">
+                        <button type="submit" class="btn complete-btn">
+                            完了切替
+                        </button>
                     </form>
 
                     <a class="btn edit-btn" href="/edit?id={{ task[0] }}">編集</a>
-
-                    <form method="post" action="/delete" style="display:inline;">
+                    <form method="post" action="/edit">
                         <input type="hidden" name="id" value="{{ task[0] }}">
-                        <button 
-                            type="button"
-                            class="btn delete-btn"
-                            onclick="playThenSubmit(this, 'deleteSound')"
-                        >
-                            削除
-                        </button>
+
+                        <input type="text" name="task" value="{{ task[1] }}" required>
+                        <button type="submit">更新</button>
+
+                    </form>
+
+                    <a href="/">戻る</a>
+
+                    <form method="post" action="/delete"
+                        onsubmit="playThenSubmit(event, 'deleteSound')">
+                    <input type="hidden" name="id" value="{{ task[0] }}">
+                    <button type="submit" class="btn delete-btn">
+                        削除
+                    </button>
                     </form>
                 </div>
             </li>
@@ -116,23 +122,35 @@
 <audio id="deleteSound" src="/static/delete.mp3"></audio>
 
 <script>
-    function playThenSubmit(button, soundId) {
-        const form = button.closest("form");
+    function playThenSubmit(event, soundId) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+
+        if (form.dataset.submitting === "true") {
+            return;
+        }
+
+        form.dataset.submitting = "true";
+
         const sound = document.getElementById(soundId);
+
+        if (!sound) {
+            form.submit();
+            return;
+        }
 
         sound.currentTime = 0;
 
         sound.play()
             .then(() => {
-                console.log("音声再生成功");
+                setTimeout(() => {
+                    form.submit();
+                }, 400);
             })
-            .catch(error => {
-                console.log("音声再生エラー:", error);
+            .catch(() => {
+                form.submit();
             });
-
-        setTimeout(() => {
-            form.submit();
-        }, 500);
     }
 </script>
 </body>
